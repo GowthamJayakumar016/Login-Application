@@ -1,21 +1,29 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import LoginPage from './components/LoginPage';
-import RegisterPage from './components/RegisterPage';
-import DashboardPage from './components/DashboardPage';
-import ProtectedRoute from './components/ProtectedRoute';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import AdminDashboard from './pages/AdminDashboard';
+import UserDashboard from './pages/UserDashboard';
+import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route
-          path="/dashboard"
+          path="/admin-dashboard"
           element={
-            <ProtectedRoute>
-              <DashboardPage />
+            <ProtectedRoute allowedRole="Admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user-dashboard"
+          element={
+            <ProtectedRoute allowedRole="User">
+              <UserDashboard />
             </ProtectedRoute>
           }
         />

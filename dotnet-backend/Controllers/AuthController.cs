@@ -9,18 +9,19 @@ namespace LoginApi.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly IUserService _userService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IUserService userService)
     {
-        _authService = authService;
+        _userService = userService;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+    public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
     {
-        var result = await _authService.RegisterAsync(registerDto);
-        if (!result.Success)
+        var result = await _userService.RegisterAsync(registerDTO);
+
+        if (!result.IsSuccess)
         {
             return BadRequest(new { message = result.Message });
         }
@@ -29,30 +30,40 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+    public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
     {
-        var result = await _authService.LoginAsync(loginDto);
-        if (!result.Success)
+        var result = await _userService.LoginAsync(loginDTO);
+
+        if (!result.IsSuccess)
         {
             return Unauthorized(new { message = result.Message });
         }
 
-        return Ok(new
-        {
-            message = result.Message,
-            token = result.Token
-        });
+        return Ok(new { message = result.Message, token = result.Token });
     }
 
-    // Sample protected endpoint.
     [Authorize]
-    [HttpGet("profile")]
-    public IActionResult Profile()
+    [HttpGet("me")]
+    public IActionResult GetCurrentUser()
     {
         return Ok(new
         {
-            username = User.Claims.FirstOrDefault(c => c.Type == "username")?.Value,
-            userId = User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value
+            username = User.Claims.FirstOrDefault(claim => claim.Type == "username")?.Value,
+            role = User.Claims.FirstOrDefault(claim => claim.Type.Contains("role"))?.Value
         });
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin-only")]
+    public IActionResult AdminOnly()
+    {
+        return Ok(new { message = "Welcome to the Admin endpoint." });
+    }
+
+    [Authorize(Roles = "User")]
+    [HttpGet("user-only")]
+    public IActionResult UserOnly()
+    {
+        return Ok(new { message = "Welcome to the User endpoint." });
     }
 }
