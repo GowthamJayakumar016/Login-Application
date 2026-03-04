@@ -1,19 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LoginApi.Models;
+namespace LoginApi.DTOs;
 
-public class User
+public class RegisterDTO
 {
-    public int Id { get; set; }
-
     [Required]
-    [MaxLength(50)]
     public string Username { get; set; } = string.Empty;
 
     [Required]
-    public string PasswordHash { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(20)]
     public string Role { get; set; } = "User";
 }
